@@ -14,15 +14,9 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
+    id                String  @id @default(uuid())
     userId            String
     type              String
     provider          String
@@ -40,7 +34,7 @@ model Account {
 }
 
 model Session {
-    id           String   @id @default(cuid())
+    id           String   @id @default(uuid())
     sessionToken String   @unique
     userId       String
     expires      DateTime
@@ -48,13 +42,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String        @id @default(uuid())
     name          String?
-    email         String?   @unique
+    email         String?       @unique
     emailVerified DateTime?
     image         String?
+    dob           DateTime
     accounts      Account[]
     sessions      Session[]
+    UserProfile   UserProfile[]
 }
 
 model VerificationToken {
@@ -63,4 +59,27 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+// Custom models
+model UserProfile {
+    userId String
+    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    dob    DateTime
+
+    @@unique([userId])
+}
+
+model Cause {
+    id      String  @id @default(uuid())
+    name    String
+    Group   Group?  @relation(fields: [groupId], references: [id])
+    groupId String?
+}
+
+model Group {
+    id          String  @id @default(uuid())
+    name        String
+    description String
+    causes      Cause[]
 }
