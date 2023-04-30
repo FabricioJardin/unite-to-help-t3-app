@@ -1,12 +1,11 @@
 import { signIn, signOut, useSession } from "next-auth/react";
+import { Button } from "~/components/ui/button";
 
 import { api } from "~/utils/api";
 
 function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-      <AuthShowcase />
-    </main>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#495EEC] to-[#495EECE6]"></main>
   );
 }
 
@@ -27,12 +26,18 @@ const AuthShowcase: React.FC = () => {
         {secretMessage && <span> - {secretMessage}</span>}
       </p>
       {!!sessionData?.user.image && <img src={sessionData.user.image} alt="Imagem do usuário" />}
-      <button
+      <Button
+        variant="default"
+        onClick={sessionData ? () => void signOut() : () => void signIn("google")}
+      >
+        {sessionData ? "Sign out" : "Sign in"}
+      </Button>
+      {/* <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
         onClick={sessionData ? () => void signOut() : () => void signIn("google")}
       >
         {sessionData ? "Sign out" : "Sign in"}
-      </button>
+      </button> */}
     </div>
   );
 };
