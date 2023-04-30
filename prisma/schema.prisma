@@ -42,14 +42,17 @@ model Session {
 }
 
 model User {
-    id            String       @id @default(uuid())
-    name          String?
-    email         String?      @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    profile       UserProfile?
+    id                String           @id @default(uuid())
+    name              String
+    email             String           @unique
+    emailVerified     DateTime?
+    image             String?
+    accounts          Account[]
+    sessions          Session[]
+    profile           Profile?
+    groups            UsersOnGroups[]
+    events            Event[]
+    eventsAsVolunteer EventVolunteer[]
 }
 
 model VerificationToken {
@@ -61,25 +64,77 @@ model VerificationToken {
 }
 
 // Custom models
-model UserProfile {
-    id     String   @id @default(uuid())
-    userId String
-    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    dob    DateTime
-
-    @@unique([userId])
+model Profile {
+    userId   String    @id @unique
+    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    dob      DateTime
+    gender   String
+    country  String
+    zipCode  String
+    contacts Contact[]
 }
 
 model Cause {
-    id      String  @id @default(uuid())
-    name    String
-    Group   Group?  @relation(fields: [groupId], references: [id])
-    groupId String?
+    id     String  @id @default(uuid())
+    name   String
+    groups Group[]
+    events Event[]
 }
 
 model Group {
-    id          String  @id @default(uuid())
+    id          String          @id @default(uuid())
     name        String
     description String
+    country     String
+    zipCode     String
     causes      Cause[]
+    users       UsersOnGroups[]
+    contacts    Contact[]
+    events      Event[]
+}
+
+model UsersOnGroups {
+    user     User     @relation(fields: [userId], references: [id])
+    userId   String
+    group    Group    @relation(fields: [groupId], references: [id])
+    groupId  String
+    joinedAt DateTime @default(now())
+    role     String   @default("USER")
+
+    @@id([groupId, userId])
+}
+
+model Contact {
+    id       String    @id @default(uuid())
+    type     String
+    value    String
+    events   Event[]
+    groups   Group[]
+    profiles Profile[]
+}
+
+model EventVolunteer {
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId  String
+    event   Event  @relation(fields: [eventId], references: [id])
+    eventId String
+    status  String @default("REQUESTED") // REQUESTED, APPROVED, REFUSED
+
+    @@unique([userId, eventId])
+}
+
+// Essa model não precisa do country pois já possui no grupo, então o country será o mesmo do group
+model Event {
+    id          String           @id @default(uuid())
+    name        String
+    description String
+    cause       Cause            @relation(fields: [causeId], references: [id], onDelete: Restrict)
+    causeId     String
+    group       Group            @relation(fields: [groupId], references: [id], onDelete: Restrict)
+    groupId     String
+    zipCode     String // Para saber a localização do evento, pode não ser na mesma localização do grupo
+    creator     User             @relation(fields: [creatorId], references: [id])
+    creatorId   String
+    contacts    Contact[]
+    volunteers  EventVolunteer[]
 }
