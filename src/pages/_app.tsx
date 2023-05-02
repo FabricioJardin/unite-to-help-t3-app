@@ -15,7 +15,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       <Head>
         <title>Unite to help</title>
-        {/* <link rel="icon" href="/favicon.ico" /> */}
+        <link rel="icon" href="/favicon.svg" />
       </Head>
       <Component {...pageProps} />
     </SessionProvider>
