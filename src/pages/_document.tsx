@@ -9,7 +9,7 @@ function Document() {
         <NextScript />
       </body>
     </Html>
-  )
+  );
 }
 
-export default Document
+export default Document;
