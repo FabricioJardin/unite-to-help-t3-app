@@ -1,7 +1,7 @@
-import { Cause, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-/** @type Array<Cause> */
+/** @type Array<import("@prisma/client").Cause> */
 const initialCauses = [
   {
     id: "340d9d5e-e958-11ed-a05b-0242ac120003",
