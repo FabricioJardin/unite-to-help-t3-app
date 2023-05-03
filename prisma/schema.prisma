@@ -6,12 +6,13 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider     = "mysql"
     // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 // Necessary for Next auth
@@ -31,6 +32,7 @@ model Account {
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -39,6 +41,8 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {
@@ -53,6 +57,8 @@ model User {
     groups            UsersOnGroups[]
     events            Event[]
     eventsAsVolunteer EventVolunteer[]
+
+    @@index([email])
 }
 
 model VerificationToken {
@@ -72,6 +78,8 @@ model Profile {
     country  String
     zipCode  String
     contacts Contact[]
+
+    @@index([userId])
 }
 
 model Cause {
@@ -79,6 +87,8 @@ model Cause {
     name   String
     groups Group[]
     events Event[]
+
+    @@index([id])
 }
 
 model Group {
@@ -91,6 +101,8 @@ model Group {
     users       UsersOnGroups[]
     contacts    Contact[]
     events      Event[]
+
+    @@index([id])
 }
 
 model UsersOnGroups {
@@ -102,6 +114,8 @@ model UsersOnGroups {
     role     String   @default("USER")
 
     @@id([groupId, userId])
+    @@index([userId])
+    @@index([groupId])
 }
 
 model Contact {
@@ -121,6 +135,8 @@ model EventVolunteer {
     status  String @default("REQUESTED") // REQUESTED, APPROVED, REFUSED
 
     @@unique([userId, eventId])
+    @@index([userId])
+    @@index([eventId])
 }
 
 // Essa model não precisa do country pois já possui no grupo, então o country será o mesmo do group
@@ -137,4 +153,8 @@ model Event {
     creatorId   String
     contacts    Contact[]
     volunteers  EventVolunteer[]
+
+    @@index([causeId])
+    @@index([groupId])
+    @@index([creatorId])
 }

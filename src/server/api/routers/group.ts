@@ -1,9 +1,49 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { listInput } from "../shared/list-input";
 
 export const groupRouter = createTRPCRouter({
-  getPreviewList: publicProcedure.input(z.object({ query: z.string() })).query(() => {
-    return [];
-  }),
+  getList: publicProcedure
+    .input(listInput)
+    .query(async ({ ctx, input: { query, page = 1, size = 20 } }) => {
+      const filters = {
+        where: {
+          ...(query && {
+            OR: [
+              {
+                name: {
+                  contains: query,
+                },
+              },
+              {
+                events: {
+                  some: {
+                    name: {
+                      contains: query,
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+        },
+        include: {
+          causes: true,
+          contacts: true,
+        },
+        take: size,
+        skip: size * page,
+      };
+
+      const [items, total] = await ctx.prisma.$transaction([
+        ctx.prisma.group.findMany(filters),
+        ctx.prisma.group.count({ where: filters.where }),
+      ]);
+
+      return {
+        items,
+        total,
+      };
+    }),
 });
