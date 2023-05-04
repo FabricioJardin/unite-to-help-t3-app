@@ -24,14 +24,14 @@ function Home() {
   );
 }
 
-export default Home;
+type ServerSideQuery = {
+  q?: string;
+};
 
-async function getServerSideProps(context: GetServerSidePropsContext<{ query?: string }>) {
+async function getServerSideProps(context: GetServerSidePropsContext<ServerSideQuery>) {
   const helpers = await getServerSideHelpers(context);
 
-  const { query } = context;
-
-  await helpers.cause.getAll.prefetch(query.query as string);
+  await helpers.cause.getAll.prefetch();
   await helpers.group.getList.prefetch({});
 
   return {
@@ -40,5 +40,7 @@ async function getServerSideProps(context: GetServerSidePropsContext<{ query?: s
     },
   };
 }
+
+export default Home;
 
 export { getServerSideProps };
