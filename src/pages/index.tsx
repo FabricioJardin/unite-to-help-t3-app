@@ -3,6 +3,7 @@ import MainLayout from "~/components/main-layout";
 import { getServerSideHelpers } from "~/utils/helpers";
 // import { Card, CardDescription, CardHeader, CardTitle } from "~/ui/card";
 import { api } from "~/utils/api";
+import { Card, CardHeader } from "~/ui/card";
 
 function Home() {
   const { data: groupData } = api.group.getList.useQuery({});
@@ -10,11 +11,13 @@ function Home() {
 
   return (
     <MainLayout>
-      {causes?.map((cause) => (
-        <div key={cause.id}>
-          <p>{cause.name}</p>
-        </div>
-      ))}
+      <div className="grid grid-cols-3 gap-4 p-10">
+        {causes?.map((cause) => (
+          <Card key={cause.id} className="min-h-[300px] border-none bg-[#003459] text-white">
+            <CardHeader>{cause.name}</CardHeader>
+          </Card>
+        ))}
+      </div>
       {groupData?.items.map((group) => (
         <div key={group.id}>
           <h1>{group.name}</h1>
