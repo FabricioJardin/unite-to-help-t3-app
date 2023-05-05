@@ -1,5 +1,7 @@
 import { HeartHandshake } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar";
 import { Button } from "~/ui/button";
 import {
   NavigationMenu,
@@ -19,6 +21,8 @@ function MainNavLink({ href, label }: { href: string; label: string }) {
 }
 
 function MainNav() {
+  const { data: sessionData } = useSession();
+
   return (
     <NavigationMenu className=" bg-[#00171F80] shadow-md shadow-[#00171F80]">
       <NavigationMenuList className="flex h-20 w-screen justify-between px-10">
@@ -35,11 +39,23 @@ function MainNav() {
           <MainNavLink href="/events" label="Eventos" />
         </div>
         <NavigationMenuItem>
-          <Link href="/sign-in" legacyBehavior passHref>
-            <Button asChild variant="secondary">
-              <NavigationMenuLink>Entrar</NavigationMenuLink>
-            </Button>
-          </Link>
+          {sessionData ? (
+            <div className="flex">
+              <Avatar>
+                <AvatarImage src={sessionData.user.image || undefined} />
+                <AvatarFallback className="text-white">FS</AvatarFallback>
+              </Avatar>
+              <Button variant="link" onClick={() => void signOut({ callbackUrl: "/" })}>
+                Sair
+              </Button>
+            </div>
+          ) : (
+            <Link href="/sign-in" legacyBehavior passHref>
+              <Button asChild variant="secondary">
+                <NavigationMenuLink>Entrar</NavigationMenuLink>
+              </Button>
+            </Link>
+          )}
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

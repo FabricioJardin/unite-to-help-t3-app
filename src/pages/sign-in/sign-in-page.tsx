@@ -9,7 +9,7 @@ function SignInPage() {
   return (
     <MainLayout hideNav>
       <div className="flex h-screen items-center justify-center">
-        <Card className="border-none bg-[#003459] ">
+        <Card className="border-none bg-[#003459]">
           <CardHeader className="space-y-1 text-white">
             <CardTitle className="text-2xl">Login</CardTitle>
             <CardDescription>
