@@ -19,9 +19,7 @@ const inter = Inter({
 
 function MainLayout({ children, hideNav }: MainLayoutProps) {
   return (
-    <main
-      className={`flex h-screen flex-col bg-[#00A8E8] ${inter.className} overflow-hidden font-sans`}
-    >
+    <main className={`flex h-screen flex-col ${inter.className} overflow-hidden font-sans`}>
       {!hideNav && <MainNav />}
       <ScrollArea className="h-full w-full">{children}</ScrollArea>
     </main>

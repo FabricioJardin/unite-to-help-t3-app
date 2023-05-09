@@ -51,7 +51,11 @@ function MainNav() {
                     .join("") || <UserIcon />}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="link" onClick={() => void signOut({ callbackUrl: "/" })}>
+              <Button
+                variant="link"
+                onClick={() => void signOut({ callbackUrl: "/" })}
+                className="text-white"
+              >
                 Sair
               </Button>
             </div>

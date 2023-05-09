@@ -29,6 +29,15 @@ export const groupRouter = createTRPCRouter({
                   },
                 },
               },
+              {
+                causes: {
+                  some: {
+                    name: {
+                      contains: query,
+                    },
+                  },
+                },
+              },
             ],
           }),
           ...(causes && {
