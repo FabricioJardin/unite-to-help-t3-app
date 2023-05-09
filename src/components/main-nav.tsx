@@ -9,6 +9,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "~/ui/navigation-menu";
+import { UserIcon } from "lucide-react";
 
 function MainNavLink({ href, label }: { href: string; label: string }) {
   return (
@@ -43,7 +44,12 @@ function MainNav() {
             <div className="flex">
               <Avatar>
                 <AvatarImage src={sessionData.user.image || undefined} />
-                <AvatarFallback className="text-white">FS</AvatarFallback>
+                <AvatarFallback className="text-white">
+                  {sessionData.user.name
+                    ?.split(" ")
+                    .map((v) => v.at(0)?.toUpperCase())
+                    .join("") || <UserIcon />}
+                </AvatarFallback>
               </Avatar>
               <Button variant="link" onClick={() => void signOut({ callbackUrl: "/" })}>
                 Sair

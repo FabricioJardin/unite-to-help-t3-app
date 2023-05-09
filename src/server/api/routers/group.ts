@@ -5,8 +5,12 @@ import { listInput } from "../shared/list-input";
 
 export const groupRouter = createTRPCRouter({
   getList: publicProcedure
-    .input(listInput)
-    .query(async ({ ctx, input: { query, page = 1, size = 20 } }) => {
+    .input(
+      listInput.extend({
+        causes: z.optional(z.array(z.string())),
+      }),
+    )
+    .query(async ({ ctx, input: { query, page = 1, size = 20, causes } }) => {
       const filters = {
         where: {
           ...(query && {
@@ -26,6 +30,15 @@ export const groupRouter = createTRPCRouter({
                 },
               },
             ],
+          }),
+          ...(causes && {
+            causes: {
+              some: {
+                id: {
+                  in: causes,
+                },
+              },
+            },
           }),
         },
         include: {
