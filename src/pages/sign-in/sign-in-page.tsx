@@ -1,9 +1,9 @@
-import NextLink from "next/link";
-import MainLayout from "~/components/main-layout";
-import { Button } from "~/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/card";
-import { Icons } from "~/ui/icons";
-import { signIn } from "next-auth/react";
+import NextLink from "next/link"
+import MainLayout from "~/components/main-layout"
+import { Button } from "~/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/card"
+import { Icons } from "~/ui/icons"
+import { signIn } from "next-auth/react"
 
 function SignInPage() {
   return (
@@ -32,7 +32,7 @@ function SignInPage() {
         </Card>
       </div>
     </MainLayout>
-  );
+  )
 }
 
-export default SignInPage;
+export default SignInPage

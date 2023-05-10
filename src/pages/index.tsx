@@ -49,7 +49,7 @@ function Home() {
             <form className="flex w-full max-w-5xl items-center space-x-2" action="/" method="get">
               <Input
                 placeholder="Buscar pelo nome do grupo ou causa"
-                className="border-none bg-primary"
+                className="bg-primary"
                 name="q"
                 value={search}
                 onChange={({ target }) => setSearch(target.value)}

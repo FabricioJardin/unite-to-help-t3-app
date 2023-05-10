@@ -8,8 +8,8 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
+  navigationMenuTriggerStyle,
 } from "~/ui/navigation-menu"
-import CreateGroupDialog from "./dialogs/create-group"
 
 function MainNav() {
   const { data: sessionData, status: authStatus } = useSession()
@@ -29,10 +29,11 @@ function MainNav() {
           {authStatus === "authenticated" ? (
             <div className="flex items-center gap-10">
               <NavigationMenuItem>
-                <CreateGroupDialog />
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Button variant="secondary">Criar evento</Button>
+                <Link href="/groups/create" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Criar grupo
+                  </NavigationMenuLink>
+                </Link>
               </NavigationMenuItem>
             </div>
           ) : null}
@@ -58,9 +59,9 @@ function MainNav() {
               </div>
             ) : (
               <Link href="/sign-in" legacyBehavior passHref>
-                <Button asChild variant="secondary">
-                  <NavigationMenuLink>Entrar</NavigationMenuLink>
-                </Button>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Entrar
+                </NavigationMenuLink>
               </Link>
             )}
           </NavigationMenuItem>
