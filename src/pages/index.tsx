@@ -20,9 +20,9 @@ function Home() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col gap-5">
+      <div className="flex min-h-screen flex-col gap-5">
         <section className="relative flex w-full">
-          <AspectRatio ratio={6 / 2}>
+          <AspectRatio ratio={8 / 2}>
             <Image src={BannerImg} alt="Banner home" fill />
           </AspectRatio>
           <div className="t-0 l-0 absolute flex h-full w-full items-end justify-center">
@@ -61,13 +61,16 @@ function Home() {
             <div className="grid grid-cols-3 gap-4">
               {groupData?.items.map((group) => (
                 <Card key={group.id} className="min-h-[300px] border-none">
-                  <CardHeader>{group.name}</CardHeader>
+                  <CardHeader>
+                    <CardTitle className="text-4xl">{group.name}</CardTitle>
+                  </CardHeader>
                 </Card>
               ))}
             </div>
           </div>
         </div>
       </div>
+      <footer className="min-h-[200px] bg-[#00171F80] shadow-md shadow-[#00171F80]">Eae</footer>
     </MainLayout>
   );
 }

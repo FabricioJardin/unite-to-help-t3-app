@@ -1,4 +1,4 @@
-import { HeartHandshake } from "lucide-react";
+import { HeartHandshake, UserIcon } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar";
@@ -9,20 +9,9 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "~/ui/navigation-menu";
-import { UserIcon } from "lucide-react";
-
-function MainNavLink({ href, label }: { href: string; label: string }) {
-  return (
-    <NavigationMenuItem>
-      <Link href={href} legacyBehavior passHref>
-        <NavigationMenuLink>{label}</NavigationMenuLink>
-      </Link>
-    </NavigationMenuItem>
-  );
-}
 
 function MainNav() {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, status: authStatus } = useSession();
 
   return (
     <NavigationMenu className=" bg-[#00171F80] shadow-md shadow-[#00171F80]">
@@ -35,38 +24,46 @@ function MainNav() {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
-        <div className="flex items-center gap-20">
-          <MainNavLink href="/groups" label="Grupos" />
-          <MainNavLink href="/events" label="Eventos" />
-        </div>
-        <NavigationMenuItem>
-          {sessionData ? (
-            <div className="flex">
-              <Avatar>
-                <AvatarImage src={sessionData.user.image || undefined} />
-                <AvatarFallback className="text-white">
-                  {sessionData.user.name
-                    ?.split(" ")
-                    .map((v) => v.at(0)?.toUpperCase())
-                    .join("") || <UserIcon />}
-                </AvatarFallback>
-              </Avatar>
-              <Button
-                variant="link"
-                onClick={() => void signOut({ callbackUrl: "/" })}
-                className="text-white"
-              >
-                Sair
-              </Button>
+        <div className="flex gap-10">
+          {authStatus === "authenticated" ? (
+            <div className="flex items-center gap-10">
+              <NavigationMenuItem>
+                <Button variant="secondary">Criar grupo</Button>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Button variant="secondary">Criar evento</Button>
+              </NavigationMenuItem>
             </div>
-          ) : (
-            <Link href="/sign-in" legacyBehavior passHref>
-              <Button asChild variant="secondary">
-                <NavigationMenuLink>Entrar</NavigationMenuLink>
-              </Button>
-            </Link>
-          )}
-        </NavigationMenuItem>
+          ) : null}
+          <NavigationMenuItem>
+            {sessionData ? (
+              <div className="flex">
+                <Avatar>
+                  <AvatarImage src={sessionData.user.image || undefined} />
+                  <AvatarFallback className="text-white">
+                    {sessionData.user.name
+                      ?.split(" ")
+                      .map((v) => v.at(0)?.toUpperCase())
+                      .join("") || <UserIcon />}
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  variant="link"
+                  onClick={() => void signOut({ callbackUrl: "/" })}
+                  className="text-white"
+                >
+                  Sair
+                </Button>
+              </div>
+            ) : (
+              <Link href="/sign-in" legacyBehavior passHref>
+                <Button asChild variant="secondary">
+                  <NavigationMenuLink>Entrar</NavigationMenuLink>
+                </Button>
+              </Link>
+            )}
+          </NavigationMenuItem>
+        </div>
       </NavigationMenuList>
     </NavigationMenu>
   );
