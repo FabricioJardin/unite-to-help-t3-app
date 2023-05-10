@@ -1,29 +1,19 @@
-import { type ReactNode } from "react";
-import { Inter } from "@next/font/google";
-import MainNav from "./main-nav";
-import { ScrollArea } from "~/ui/scroll-area";
+import { type ReactNode } from "react"
+import { ScrollArea } from "~/ui/scroll-area"
+import MainNav from "./main-nav"
 
 type MainLayoutProps = {
-  children: ReactNode;
-  hideNav?: boolean;
-};
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-//bg-gradient-to-b from-[#495EEC] to-[#495EECE6]
-
-// #006494
+  children: ReactNode
+  hideNav?: boolean
+}
 
 function MainLayout({ children, hideNav }: MainLayoutProps) {
   return (
-    <main className={`flex h-screen flex-col ${inter.className} overflow-hidden font-sans`}>
+    <div className={`flex h-screen flex-col overflow-hidden font-sans`}>
       {!hideNav && <MainNav />}
       <ScrollArea className="h-full w-full">{children}</ScrollArea>
-    </main>
-  );
+    </div>
+  )
 }
 
-export default MainLayout;
+export default MainLayout

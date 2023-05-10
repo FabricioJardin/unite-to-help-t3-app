@@ -1,11 +1,18 @@
-import { type AppType } from "next/app";
-import { type Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
+import { type AppType } from "next/app"
+import { type Session } from "next-auth"
+import { SessionProvider } from "next-auth/react"
 
-import { api } from "~/utils/api";
+import { api } from "~/utils/api"
 
-import "~/styles/globals.css";
-import Head from "next/head";
+import "~/styles/globals.css"
+import Head from "next/head"
+import { Inter } from "@next/font/google"
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -17,9 +24,18 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <title>Unite to help</title>
         <link rel="icon" href="/favicon.svg" />
       </Head>
-      <Component {...pageProps} />
+      <style jsx global>
+        {`
+          html {
+            --font-inter: ${inter.style.fontFamily};
+          }
+        `}
+      </style>
+      <main className={`${inter.variable} font-sans`}>
+        <Component {...pageProps} />
+      </main>
     </SessionProvider>
-  );
-};
+  )
+}
 
-export default api.withTRPC(MyApp);
+export default api.withTRPC(MyApp)

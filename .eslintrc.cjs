@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const path = require("path");
+const path = require("path")
 
 /** @type {import("eslint").Linter.Config} */
 const config = {
@@ -35,11 +35,11 @@ const config = {
         singleQuote: false,
         trailingComma: "all",
         arrowParens: "always",
-        semi: true,
+        semi: false,
         endOfLine: "auto",
       },
     ],
   },
-};
+}
 
-module.exports = config;
+module.exports = config

@@ -1,17 +1,18 @@
-import { HeartHandshake, UserIcon } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar";
-import { Button } from "~/ui/button";
+import { HeartHandshake, UserIcon } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
+import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "~/ui/avatar"
+import { Button } from "~/ui/button"
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from "~/ui/navigation-menu";
+} from "~/ui/navigation-menu"
+import CreateGroupDialog from "./dialogs/create-group"
 
 function MainNav() {
-  const { data: sessionData, status: authStatus } = useSession();
+  const { data: sessionData, status: authStatus } = useSession()
 
   return (
     <NavigationMenu className=" bg-[#00171F80] shadow-md shadow-[#00171F80]">
@@ -28,7 +29,7 @@ function MainNav() {
           {authStatus === "authenticated" ? (
             <div className="flex items-center gap-10">
               <NavigationMenuItem>
-                <Button variant="secondary">Criar grupo</Button>
+                <CreateGroupDialog />
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Button variant="secondary">Criar evento</Button>
@@ -66,7 +67,7 @@ function MainNav() {
         </div>
       </NavigationMenuList>
     </NavigationMenu>
-  );
+  )
 }
 
-export default MainNav;
+export default MainNav

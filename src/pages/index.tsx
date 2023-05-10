@@ -1,22 +1,23 @@
-import { type GetServerSidePropsContext } from "next";
-import MainLayout from "~/components/main-layout";
-import { getServerSideHelpers } from "~/utils/helpers";
-import Image from "next/image";
-import { AspectRatio } from "~/ui/aspect-ratio";
-import { Card, CardDescription, CardHeader, CardTitle } from "~/ui/card";
-import { api } from "~/utils/api";
-import BannerImg from "../../public/banner.png";
-import { Input } from "~/ui/input";
-import { Button } from "~/ui/button";
-import { useRouter } from "next/router";
-import { useState } from "react";
+import { type GetServerSidePropsContext } from "next"
+import MainLayout from "~/components/main-layout"
+import { getServerSideHelpers } from "~/utils/helpers"
+import Image from "next/image"
+import { AspectRatio } from "~/ui/aspect-ratio"
+import { Card, CardDescription, CardHeader, CardTitle } from "~/ui/card"
+import { api } from "~/utils/api"
+import BannerImg from "../../public/banner.png"
+import { Input } from "~/ui/input"
+import { Button } from "~/ui/button"
+import { useRouter } from "next/router"
+import { useState } from "react"
+import Link from "next/link"
 
 function Home() {
-  const { data: groupData } = api.group.getList.useQuery({});
-  const { data: causes } = api.cause.getAll.useQuery();
-  const { query } = useRouter();
+  const { data: groupData } = api.group.getList.useQuery({})
+  const { data: causes } = api.cause.getAll.useQuery()
+  const { query } = useRouter()
 
-  const [search, setSearch] = useState<string>((query.q as string) || "");
+  const [search, setSearch] = useState<string>((query.q as string) || "")
 
   return (
     <MainLayout>
@@ -70,30 +71,68 @@ function Home() {
           </div>
         </div>
       </div>
-      <footer className="min-h-[200px] bg-[#00171F80] shadow-md shadow-[#00171F80]">Eae</footer>
+      <footer className="flex items-start justify-start gap-40 bg-[#00171F80] px-24 py-10 shadow-md shadow-[#00171F80]">
+        <div className="flex flex-col gap-4 text-white">
+          <h1 className="font-bold">Unite to Help</h1>
+          <ul className="flex flex-col flex-wrap gap-x-12 gap-y-2">
+            <li>
+              <Link href="#">Quem somos</Link>
+            </li>
+            <li>
+              <Link href="#">Blog</Link>
+            </li>
+            <li>
+              <Link href="#">Guia de Voluntários</Link>
+            </li>
+            <li>
+              <Link href="#">Como engajar voluntários</Link>
+            </li>
+            <li>
+              <Link href="#">Termos</Link>
+            </li>
+            <li>
+              <Link href="#">Ajuda</Link>
+            </li>
+            <li>
+              <Link href="#">Contato</Link>
+            </li>
+            <li>
+              <Link href="#">Trabalhe conosco</Link>
+            </li>
+          </ul>
+        </div>
+        <div className="flex flex-col gap-4 text-white ">
+          <h1 className="font-bold">Causas</h1>
+          <ul className="flex max-h-[300px] flex-col flex-wrap gap-x-12 gap-y-2">
+            {causes?.map((cause) => (
+              <li key={cause.id}>{cause.name}</li>
+            ))}
+          </ul>
+        </div>
+      </footer>
     </MainLayout>
-  );
+  )
 }
 
 type ServerSideQuery = {
-  q?: string;
-};
+  q?: string
+}
 
 async function getServerSideProps(context: GetServerSidePropsContext<ServerSideQuery>) {
-  const helpers = await getServerSideHelpers(context);
+  const helpers = await getServerSideHelpers(context)
 
-  await helpers.cause.getAll.prefetch();
+  await helpers.cause.getAll.prefetch()
   await helpers.group.getList.prefetch({
     query: context.query["q"] as string,
-  });
+  })
 
   return {
     props: {
       trpcState: helpers.dehydrate(),
     },
-  };
+  }
 }
 
-export default Home;
+export default Home
 
-export { getServerSideProps };
+export { getServerSideProps }
