@@ -1,8 +1,11 @@
-import { MinusIcon, Plus, PlusIcon } from "lucide-react"
+import { XIcon } from "lucide-react"
+import { MinusIcon, PlusIcon, XSquareIcon } from "lucide-react"
 import { useRouter } from "next/router"
 import { type PropsWithChildren } from "react"
-import { type SubmitHandler, useForm, useFieldArray } from "react-hook-form"
+import { Controller, useFieldArray, useForm, type SubmitHandler } from "react-hook-form"
+import ChooseCausesComboBox from "~/components/choose-causes-combo-box"
 import MainLayout from "~/components/main-layout"
+import { Badge } from "~/ui/badge"
 import { Button } from "~/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/ui/card"
 import { Input } from "~/ui/input"
@@ -27,6 +30,7 @@ type Form = {
   zipCode: string
   causes: Array<{
     id: string
+    name: string
   }>
   contacts: Array<{
     type: "PHONE" | "EMAIL"
@@ -37,7 +41,6 @@ type Form = {
 function CreateGroupPage(props: PropsWithChildren<CreateGroupPageProps>) {
   const { register, handleSubmit, control } = useForm<Form>()
   const { push } = useRouter()
-  const { data: availableCauses } = api.cause.getAll.useQuery()
   const { mutateAsync: createGroup } = api.group.create.useMutation()
 
   const {
@@ -75,7 +78,7 @@ function CreateGroupPage(props: PropsWithChildren<CreateGroupPageProps>) {
   return (
     <MainLayout>
       <div className="flex h-screen items-center justify-center">
-        <Card className="min-w-full rounded-3xl md:min-w-[925px]">
+        <Card className="min-w-full rounded-3xl md:min-w-[925px] md:max-w-[925px]">
           <CardHeader>
             <CardTitle>Criar grupo</CardTitle>
             <CardDescription>Insira os dados do seu novo grupo.</CardDescription>
@@ -114,38 +117,66 @@ function CreateGroupPage(props: PropsWithChildren<CreateGroupPageProps>) {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="contacts">Contatos</Label>
+                  <Label>Contatos</Label>
                   {contacts.map((contact, index) => (
-                    <div className="grid grid-cols-[1fr_1fr_auto] gap-2" key={contact.id}>
+                    <div className="grid grid-cols-[auto_1fr_1fr] gap-2" key={contact.id}>
+                      <Button
+                        className="rounded-lg"
+                        type="button"
+                        onClick={() => removeContact(index)}
+                      >
+                        Remover
+                      </Button>
                       <Input
                         {...register(`contacts.${index}.value`)}
                         className="bg-primary"
                         type={contact.type === "EMAIL" ? "email" : "tel"}
                       />
-                      <Select>
-                        <SelectTrigger className="bg-primary">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Tipo do contato</SelectLabel>
-                            <SelectItem value="EMAIL">E-mail</SelectItem>
-                            <SelectItem value="PHONE">Telefone</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <Button className="w-fit" type="button" onClick={() => removeContact(index)}>
-                        <MinusIcon />
-                      </Button>
+                      <Controller
+                        control={control}
+                        name={`contacts.${index}.type`}
+                        render={({ field: { value, onChange, ref } }) => (
+                          <Select onValueChange={onChange} value={value}>
+                            <SelectTrigger className="bg-primary" ref={ref}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Tipo do contato</SelectLabel>
+                                <SelectItem value="EMAIL">E-mail</SelectItem>
+                                <SelectItem value="PHONE">Telefone</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     </div>
                   ))}
                   <Button
-                    className="w-fit"
+                    className="rounded-lg"
                     type="button"
                     onClick={() => addContact({ type: "PHONE", value: "" })}
                   >
-                    <PlusIcon />
+                    Adicionar
                   </Button>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label>Causas</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {causes.map((cause, index) => (
+                      <Badge key={cause.id} className="gap-1 px-1">
+                        <span>{cause.name}</span>
+                        <XIcon
+                          size={12}
+                          role="button"
+                          className=" rounded-full ring-primary hover:bg-secondary "
+                          onClick={() => removeCause(index)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                  <ChooseCausesComboBox />
                 </div>
               </div>
 
