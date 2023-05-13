@@ -14,6 +14,7 @@ import { getServerSideHelpers } from "~/utils/helpers"
 import BannerImg from "../../public/banner.png"
 import { Skeleton } from "~/ui/skeleton"
 import { useSearchParams } from "next/navigation"
+import { useToast } from "~/hooks/use-toast"
 
 function genId(count: number) {
   count = (count + 1) % Number.MAX_VALUE
@@ -30,16 +31,43 @@ function Home() {
   const [groupSearch, setGroupSearch] = useState<string>(searchParams.get("group") || "")
   const [groupSearchInput, setGroupSearchInput] = useState<string>(groupSearch)
 
-  const [eventSearch, setEventSearch] = useState<string>(searchParams.get("event") || "")
-  const [eventSearchInput, setEventSearchInput] = useState<string>(eventSearch)
-
-  const { data: groupData, isLoading: isLoadingGroups } = api.group.getList.useQuery({
+  const {
+    data: groupData,
+    isLoading: isLoadingGroups,
+    refetch: refetchGroups,
+  } = api.group.getList.useQuery({
     query: groupSearch,
   })
 
-  const { data: eventData, isLoading: isLoadingEvents } = api.event.getList.useQuery({
-    query: eventSearch,
+  const { toast } = useToast()
+
+  const { mutateAsync: joinGroup } = api.group.addUser.useMutation({
+    onSuccess() {
+      void refetchGroups()
+    },
   })
+
+  const handleJoinGroup = async (groupId: string) => {
+    const createdToast = toast({
+      title: "Entrando no grupo...",
+    })
+
+    try {
+      await joinGroup(groupId)
+
+      createdToast.update({
+        id: createdToast.id,
+        title: "Seu ingresso no grupo foi processado com sucesso!",
+      })
+    } catch {
+      createdToast.update({
+        id: createdToast.id,
+        title: "Houve algum erro ao adentrar ao grupo",
+        description: "Tente novamente mais tarde",
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <MainLayout>
@@ -130,7 +158,11 @@ function Home() {
                     </CardContent>
                     <CardFooter className="flex-1">
                       {status === "authenticated" && (
-                        <Button className="w-full" disabled={userInGroup}>
+                        <Button
+                          className="w-full"
+                          disabled={userInGroup}
+                          onClick={!userInGroup ? () => handleJoinGroup(group.id) : undefined}
+                        >
                           {userInGroup ? "Já ingressou" : "Entrar no grupo"}
                         </Button>
                       )}

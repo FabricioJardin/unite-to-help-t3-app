@@ -115,4 +115,22 @@ export const groupRouter = createTRPCRouter({
         },
       })
     }),
+
+  addUser: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx: { prisma, session }, input }) => {
+      const { user } = session
+
+      return await prisma.usersOnGroups.create({
+        data: {
+          groupId: input,
+          userId: user.id,
+          role: "USER",
+        },
+        include: {
+          group: true,
+          user: true,
+        },
+      })
+    }),
 })
