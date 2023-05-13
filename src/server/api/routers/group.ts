@@ -69,6 +69,24 @@ export const groupRouter = createTRPCRouter({
         total,
       }
     }),
+  getById: publicProcedure.input(z.string()).query(async ({ ctx: { prisma }, input }) => {
+    return prisma.group.findFirstOrThrow({
+      where: {
+        id: input,
+      },
+      include: {
+        causes: true,
+        contacts: true,
+        events: true,
+        users: {
+          include: {
+            user: true,
+          },
+        },
+        _count: true,
+      },
+    })
+  }),
   create: protectedProcedure
     .input(
       z.object({

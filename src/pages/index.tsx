@@ -2,19 +2,20 @@ import { type GetServerSidePropsContext } from "next"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/router"
 import { useState } from "react"
 import MainLayout from "~/components/main-layout"
+import { useToast } from "~/hooks/use-toast"
 import { AspectRatio } from "~/ui/aspect-ratio"
 import { Badge } from "~/ui/badge"
 import { Button } from "~/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/card"
 import { Input } from "~/ui/input"
+import { Skeleton } from "~/ui/skeleton"
 import { api } from "~/utils/api"
 import { getServerSideHelpers } from "~/utils/helpers"
 import BannerImg from "../../public/banner.png"
-import { Skeleton } from "~/ui/skeleton"
-import { useSearchParams } from "next/navigation"
-import { useToast } from "~/hooks/use-toast"
 
 function genId(count: number) {
   count = (count + 1) % Number.MAX_VALUE
@@ -144,7 +145,14 @@ function Home() {
                 return (
                   <Card key={group.id} className="flex flex-col border-none">
                     <CardHeader className="flex-1">
-                      <CardTitle className="text-4xl">{group.name}</CardTitle>
+                      <Link href={`/groups/${group.id}`} legacyBehavior passHref>
+                        <CardTitle
+                          className="text-4xl underline-offset-4 hover:underline"
+                          role="button"
+                        >
+                          {group.name}
+                        </CardTitle>
+                      </Link>
                       <CardDescription>{group.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
