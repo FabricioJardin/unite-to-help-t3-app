@@ -5,6 +5,7 @@ import { type PropsWithChildren } from "react"
 import { Controller, useFieldArray, useForm, type SubmitHandler } from "react-hook-form"
 import ChooseCausesComboBox from "~/components/choose-causes-combo-box"
 import MainLayout from "~/components/main-layout"
+import { useToast } from "~/hooks/use-toast"
 import { Badge } from "~/ui/badge"
 import { Button } from "~/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/ui/card"
@@ -37,9 +38,33 @@ type Form = {
 }
 
 function CreateGroupPage() {
-  const { register, handleSubmit, control } = useForm<Form>()
+  const { register, handleSubmit, control } = useForm<Form>({
+    defaultValues: {
+      causes: [],
+      contacts: [],
+      description: "",
+      name: "",
+      zipCode: "",
+    },
+  })
+
+  const { toast } = useToast()
+
   const { push } = useRouter()
-  const { mutateAsync: createGroup } = api.group.create.useMutation()
+  const { mutateAsync: createGroup } = api.group.create.useMutation({
+    onMutate() {
+      toast({
+        itemID: "group",
+        title: "Salvando grupo",
+      })
+    },
+    onSuccess() {
+      toast({
+        itemID: "group",
+        title: "Grupo criado com sucesso",
+      })
+    },
+  })
 
   const {
     fields: contacts,

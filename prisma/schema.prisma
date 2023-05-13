@@ -94,7 +94,7 @@ model Cause {
 model Group {
     id          String          @id @default(uuid())
     name        String
-    description String
+    description String          @db.Text
     country     String
     zipCode     String
     causes      Cause[]
@@ -143,7 +143,7 @@ model EventVolunteer {
 model Event {
     id          String           @id @default(uuid())
     name        String
-    description String
+    description String           @db.Text
     cause       Cause            @relation(fields: [causeId], references: [id], onDelete: Restrict)
     causeId     String
     group       Group            @relation(fields: [groupId], references: [id], onDelete: Restrict)

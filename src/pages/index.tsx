@@ -151,9 +151,12 @@ type ServerSideQuery = {
 async function getServerSideProps(context: GetServerSidePropsContext<ServerSideQuery>) {
   const helpers = await getServerSideHelpers(context)
 
+  let query: string | undefined
+  if (context.query["q"]) query = context.query["q"] as string
+
   await helpers.cause.getAll.prefetch()
   await helpers.group.getList.prefetch({
-    query: context.query["q"] as string,
+    query,
   })
 
   return {
