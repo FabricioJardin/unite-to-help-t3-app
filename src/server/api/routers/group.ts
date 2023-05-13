@@ -2,7 +2,6 @@ import { z } from "zod"
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc"
 import { listInput } from "../shared/list-input"
-import { randomUUID } from "crypto"
 
 export const groupRouter = createTRPCRouter({
   getList: publicProcedure
@@ -11,7 +10,7 @@ export const groupRouter = createTRPCRouter({
         causes: z.optional(z.array(z.string())),
       }),
     )
-    .query(async ({ ctx, input: { query, page = 1, size = 20, causes } }) => {
+    .query(async ({ ctx, input: { query, page = 0, size = 20, causes } }) => {
       const filters = {
         where: {
           ...(query && {
@@ -54,6 +53,7 @@ export const groupRouter = createTRPCRouter({
         include: {
           causes: true,
           contacts: true,
+          users: true,
         },
         take: size,
         skip: size * page,

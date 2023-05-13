@@ -1,21 +1,19 @@
-import { Check } from "lucide-react"
-import { ChevronsUpDown } from "lucide-react"
-import { type ReactNode, type PropsWithChildren, useState } from "react"
-import { cn } from "~/lib/utils"
+import { type Cause } from "@prisma/client"
+import { PlusIcon } from "lucide-react"
+import { useState, type PropsWithChildren } from "react"
 import { Button } from "~/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "~/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "~/ui/popover"
 import { api } from "~/utils/api"
 
 type ChooseCausesComboBoxProps = {
-  Trigger?: ReactNode
+  value: Array<string>
+  onAdd(cause: Cause): void
 }
 
-function ChooseCausesComboBox(props: PropsWithChildren<ChooseCausesComboBoxProps>) {
+function ChooseCausesComboBox({ value, onAdd }: PropsWithChildren<ChooseCausesComboBoxProps>) {
   const { data: causes } = api.cause.getAll.useQuery()
 
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -30,12 +28,22 @@ function ChooseCausesComboBox(props: PropsWithChildren<ChooseCausesComboBoxProps
           <>+ Adicionar causa</>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="flex w-[45rem] flex-wrap gap-2 p-0" side="right" align="start">
-        {causes?.map((cause) => (
-          <div className="flex gap-1" key={cause.id}>
-            <span>{cause.name}</span>
-          </div>
-        ))}
+      <PopoverContent className="w-fit bg-primary p-2" align="start">
+        <div className="grid grid-cols-3 gap-2">
+          {causes
+            ?.filter((cause) => !value.includes(cause.id))
+            ?.map((cause) => (
+              <Button
+                key={cause.id}
+                variant="secondary"
+                className="justify-between"
+                role="button"
+                onClick={() => onAdd(cause)}
+              >
+                {cause.name} <PlusIcon />
+              </Button>
+            ))}
+        </div>
       </PopoverContent>
     </Popover>
   )

@@ -22,8 +22,6 @@ import {
 import { Textarea } from "~/ui/textarea"
 import { api } from "~/utils/api"
 
-type CreateGroupPageProps = {}
-
 type Form = {
   name: string
   description: string
@@ -38,7 +36,7 @@ type Form = {
   }>
 }
 
-function CreateGroupPage(props: PropsWithChildren<CreateGroupPageProps>) {
+function CreateGroupPage() {
   const { register, handleSubmit, control } = useForm<Form>()
   const { push } = useRouter()
   const { mutateAsync: createGroup } = api.group.create.useMutation()
@@ -176,7 +174,10 @@ function CreateGroupPage(props: PropsWithChildren<CreateGroupPageProps>) {
                       </Badge>
                     ))}
                   </div>
-                  <ChooseCausesComboBox />
+                  <ChooseCausesComboBox
+                    value={causes.map(({ id }) => id)}
+                    onAdd={(cause) => addCause(cause)}
+                  />
                 </div>
               </div>
 

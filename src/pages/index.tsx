@@ -1,23 +1,32 @@
 import { type GetServerSidePropsContext } from "next"
-import MainLayout from "~/components/main-layout"
-import { getServerSideHelpers } from "~/utils/helpers"
+import { useSession } from "next-auth/react"
 import Image from "next/image"
-import { AspectRatio } from "~/ui/aspect-ratio"
-import { Card, CardDescription, CardHeader, CardTitle } from "~/ui/card"
-import { api } from "~/utils/api"
-import BannerImg from "../../public/banner.png"
-import { Input } from "~/ui/input"
-import { Button } from "~/ui/button"
-import { useRouter } from "next/router"
-import { useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
+import MainLayout from "~/components/main-layout"
+import { AspectRatio } from "~/ui/aspect-ratio"
+import { Badge } from "~/ui/badge"
+import { Button } from "~/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/card"
+import { Input } from "~/ui/input"
+import { api } from "~/utils/api"
+import { getServerSideHelpers } from "~/utils/helpers"
+import BannerImg from "../../public/banner.png"
 
 function Home() {
-  const { data: groupData } = api.group.getList.useQuery({})
-  const { data: causes } = api.cause.getAll.useQuery()
-  const { query } = useRouter()
+  const searchParams = useSearchParams()
 
-  const [search, setSearch] = useState<string>((query.q as string) || "")
+  const { data: groupData } = api.group.getList.useQuery({
+    ...(searchParams.get("q")?.length && {
+      query: searchParams.get("q") || "",
+    }),
+  })
+  const { data: causes } = api.cause.getAll.useQuery()
+
+  const { status, data: authData } = useSession()
+
+  const [search, setSearch] = useState<string>(searchParams.get("q") || "")
 
   return (
     <MainLayout>
@@ -60,13 +69,34 @@ function Home() {
             {!groupData?.total && <span className="text-1xl">Nenhum grupo foi encontrado.</span>}
 
             <div className="grid grid-cols-3 gap-4">
-              {groupData?.items.map((group) => (
-                <Card key={group.id} className="min-h-[300px] border-none">
-                  <CardHeader>
-                    <CardTitle className="text-4xl">{group.name}</CardTitle>
-                  </CardHeader>
-                </Card>
-              ))}
+              {groupData?.items.map((group) => {
+                const userInGroup = group.users.some((user) => user.userId === authData?.user.id)
+
+                return (
+                  <Card key={group.id} className="flex flex-col border-none">
+                    <CardHeader className="flex-1">
+                      <CardTitle className="text-4xl">{group.name}</CardTitle>
+                      <CardDescription>{group.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="flex flex-wrap gap-2">
+                        {group.causes.map(({ id, name }) => (
+                          <Badge key={id} className="gap-1 px-1">
+                            <span>{name}</span>
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex-1">
+                      {status === "authenticated" && (
+                        <Button className="w-full" disabled={userInGroup}>
+                          {userInGroup ? "Já ingressou" : "Entrar no grupo"}
+                        </Button>
+                      )}
+                    </CardFooter>
+                  </Card>
+                )
+              })}
             </div>
           </div>
         </div>
