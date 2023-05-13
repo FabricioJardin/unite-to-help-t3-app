@@ -2,7 +2,6 @@ import { type GetServerSidePropsContext } from "next"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import MainLayout from "~/components/main-layout"
 import { AspectRatio } from "~/ui/aspect-ratio"
@@ -13,20 +12,34 @@ import { Input } from "~/ui/input"
 import { api } from "~/utils/api"
 import { getServerSideHelpers } from "~/utils/helpers"
 import BannerImg from "../../public/banner.png"
+import { Skeleton } from "~/ui/skeleton"
+import { useSearchParams } from "next/navigation"
+
+function genId(count: number) {
+  count = (count + 1) % Number.MAX_VALUE
+  return count.toString()
+}
 
 function Home() {
   const searchParams = useSearchParams()
 
-  const { data: groupData } = api.group.getList.useQuery({
-    ...(searchParams.get("q")?.length && {
-      query: searchParams.get("q") || "",
-    }),
-  })
   const { data: causes } = api.cause.getAll.useQuery()
 
   const { status, data: authData } = useSession()
 
-  const [search, setSearch] = useState<string>(searchParams.get("q") || "")
+  const [groupSearch, setGroupSearch] = useState<string>(searchParams.get("group") || "")
+  const [groupSearchInput, setGroupSearchInput] = useState<string>(groupSearch)
+
+  const [eventSearch, setEventSearch] = useState<string>(searchParams.get("event") || "")
+  const [eventSearchInput, setEventSearchInput] = useState<string>(eventSearch)
+
+  const { data: groupData, isLoading: isLoadingGroups } = api.group.getList.useQuery({
+    query: groupSearch,
+  })
+
+  const { data: eventData, isLoading: isLoadingEvents } = api.event.getList.useQuery({
+    query: eventSearch,
+  })
 
   return (
     <MainLayout>
@@ -55,20 +68,48 @@ function Home() {
         <div className="p-10">
           <div className="flex flex-col gap-5">
             <h1 className="text-3xl font-bold">Conheça os grupos</h1>
-            <form className="flex w-full max-w-5xl items-center space-x-2" action="/" method="get">
+            <div className="flex w-full max-w-5xl items-center space-x-2">
               <Input
                 placeholder="Buscar pelo nome do grupo ou causa"
                 className="bg-primary"
                 name="q"
-                value={search}
-                onChange={({ target }) => setSearch(target.value)}
+                value={groupSearchInput}
+                onChange={({ target }) => setGroupSearchInput(target.value)}
               />
-              <Button type="submit">Pesquisar</Button>
-            </form>
+              <Button onClick={() => setGroupSearch(groupSearchInput)}>Pesquisar</Button>
+            </div>
 
-            {!groupData?.total && <span className="text-1xl">Nenhum grupo foi encontrado.</span>}
+            {!groupData?.total && !isLoadingGroups && (
+              <span className="text-1xl">Nenhum grupo foi encontrado.</span>
+            )}
 
             <div className="grid grid-cols-3 gap-4">
+              {isLoadingGroups &&
+                Array.from({ length: 3 }).map((_, index) => (
+                  <Card key={genId(index)} className="flex flex-col border-none">
+                    <CardHeader className="flex-1">
+                      <CardTitle>
+                        <Skeleton className="h-10 w-[250px]" />
+                      </CardTitle>
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from({ length: 4 }).map((_cause, causeIndex) => (
+                          <Skeleton className="h-5 w-14 rounded-lg" key={genId(causeIndex)} />
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex-1">
+                      {status === "authenticated" && <Skeleton className="h-10 w-full" />}
+                    </CardFooter>
+                  </Card>
+                ))}
+
               {groupData?.items.map((group) => {
                 const userInGroup = group.users.some((user) => user.userId === authData?.user.id)
 
@@ -145,18 +186,24 @@ function Home() {
 }
 
 type ServerSideQuery = {
-  q?: string
+  group?: string
+  event?: string
 }
 
 async function getServerSideProps(context: GetServerSidePropsContext<ServerSideQuery>) {
   const helpers = await getServerSideHelpers(context)
 
-  let query: string | undefined
-  if (context.query["q"]) query = context.query["q"] as string
-
   await helpers.cause.getAll.prefetch()
   await helpers.group.getList.prefetch({
-    query,
+    ...(context.query["group"] && {
+      query: context.query["group"] as string,
+    }),
+  })
+
+  await helpers.event.getList.prefetch({
+    ...(context.query["event"] && {
+      query: context.query["event"] as string,
+    }),
   })
 
   return {

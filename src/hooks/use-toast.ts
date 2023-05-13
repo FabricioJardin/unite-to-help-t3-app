@@ -184,4 +184,10 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+type CreateToastResult = {
+  id: string
+  dismiss: () => void
+  update: (props: ToasterToast) => void
+}
+
+export { useToast, toast, type CreateToastResult }

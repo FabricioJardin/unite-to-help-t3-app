@@ -1,7 +1,5 @@
 import { XIcon } from "lucide-react"
-import { MinusIcon, PlusIcon, XSquareIcon } from "lucide-react"
 import { useRouter } from "next/router"
-import { type PropsWithChildren } from "react"
 import { Controller, useFieldArray, useForm, type SubmitHandler } from "react-hook-form"
 import ChooseCausesComboBox from "~/components/choose-causes-combo-box"
 import MainLayout from "~/components/main-layout"
@@ -51,20 +49,7 @@ function CreateGroupPage() {
   const { toast } = useToast()
 
   const { push } = useRouter()
-  const { mutateAsync: createGroup } = api.group.create.useMutation({
-    onMutate() {
-      toast({
-        itemID: "group",
-        title: "Salvando grupo",
-      })
-    },
-    onSuccess() {
-      toast({
-        itemID: "group",
-        title: "Grupo criado com sucesso",
-      })
-    },
-  })
+  const { mutateAsync: createGroup } = api.group.create.useMutation()
 
   const {
     fields: contacts,
@@ -86,16 +71,27 @@ function CreateGroupPage() {
   })
 
   const onSubmit: SubmitHandler<Form> = async (data) => {
-    const group = await createGroup({
-      name: data.name,
-      description: data.description,
-      zipCode: data.zipCode,
-      country: "BRA",
-      causes: data.causes.map(({ id }) => id),
-      contacts: data.contacts,
+    const createdToast = toast({
+      title: "Salvando grupo",
     })
 
-    return push(`/groups/${group.id}`)
+    try {
+      const group = await createGroup({
+        name: data.name,
+        description: data.description,
+        zipCode: data.zipCode,
+        country: "BRA",
+        causes: data.causes.map(({ id }) => id),
+        contacts: data.contacts,
+      })
+
+      return push(`/groups/${group.id}`)
+    } finally {
+      createdToast.update({
+        id: createdToast.id,
+        title: "Grupo criado com sucesso",
+      })
+    }
   }
 
   return (
