@@ -11,7 +11,19 @@ import { Label } from "~/ui/label"
 import { api } from "~/utils/api"
 import { getServerSideHelpers } from "~/utils/helpers"
 
-function GroupDetailPage() {
+type AddressData = {
+  cep: string
+  state: string
+  city: string
+  neighborhood: string
+  street: string
+}
+
+type GroupDetailPageProps = {
+  addressData?: AddressData
+}
+
+function GroupDetailPage({ addressData }: GroupDetailPageProps) {
   const router = useRouter()
   const { toast } = useToast()
 
@@ -40,7 +52,13 @@ function GroupDetailPage() {
               <div className="flex gap-2">
                 <MapPinIcon />
 
-                <span>{group?.zipCode}</span>
+                {addressData ? (
+                  <span>
+                    {addressData.neighborhood} - {addressData.city} {addressData.state}
+                  </span>
+                ) : (
+                  <span>{group?.zipCode}</span>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">
@@ -85,11 +103,22 @@ type GetServerSidePropsQuery = {
 async function getServerSideProps(context: GetServerSidePropsContext<GetServerSidePropsQuery>) {
   const helpers = await getServerSideHelpers(context)
 
-  if (context.params?.id) await helpers.group.getById.prefetch(context.params.id)
+  await helpers.group.getById.prefetch(context.params!.id)
+
+  const group = await helpers.group.getById.fetch(context.params!.id)
+
+  let addressData: AddressData | undefined
+
+  try {
+    addressData = await fetch(`https://brasilapi.com.br/api/cep/v2/${group.zipCode}`).then(
+      (res) => res.json() as Promise<AddressData>,
+    )
+  } catch (err) {}
 
   return {
     props: {
       trpcState: helpers.dehydrate(),
+      addressData: addressData,
     },
   }
 }
