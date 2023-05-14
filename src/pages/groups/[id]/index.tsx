@@ -160,7 +160,7 @@ async function getServerSideProps(context: GetServerSidePropsContext<GetServerSi
   return {
     props: {
       trpcState: helpers.dehydrate(),
-      addressData: addressData,
+      addressData,
     },
   }
 }
