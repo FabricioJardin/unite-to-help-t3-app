@@ -143,17 +143,19 @@ type GetServerSidePropsQuery = {
 async function getServerSideProps(context: GetServerSidePropsContext<GetServerSidePropsQuery>) {
   const helpers = await getServerSideHelpers(context)
 
-  await helpers.group.getById.prefetch(context.params!.id)
-
-  const group = await helpers.group.getById.fetch(context.params!.id)
-
   let addressData: AddressData | undefined
 
-  try {
-    addressData = await fetch(`https://brasilapi.com.br/api/cep/v2/${group.zipCode}`).then(
-      (res) => res.json() as Promise<AddressData>,
-    )
-  } catch (err) {}
+  if (context.params) {
+    await helpers.group.getById.prefetch(context.params.id)
+
+    const group = await helpers.group.getById.fetch(context.params.id)
+
+    try {
+      addressData = await fetch(`https://brasilapi.com.br/api/cep/v2/${group.zipCode}`).then(
+        (res) => res.json() as Promise<AddressData>,
+      )
+    } catch (err) {}
+  }
 
   return {
     props: {
