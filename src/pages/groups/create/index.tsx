@@ -68,8 +68,6 @@ function CreateGroupPage() {
     resolver: zodResolver(formSchema),
   })
 
-  console.log({ errors })
-
   const { toast } = useToast()
 
   const { push } = useRouter()
