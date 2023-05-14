@@ -1,6 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { XIcon } from "lucide-react"
 import { useRouter } from "next/router"
 import { Controller, useFieldArray, useForm, type SubmitHandler } from "react-hook-form"
+import { z } from "zod"
 import ChooseCausesComboBox from "~/components/choose-causes-combo-box"
 import MainLayout from "~/components/main-layout"
 import { useToast } from "~/hooks/use-toast"
@@ -21,22 +23,41 @@ import {
 import { Textarea } from "~/ui/textarea"
 import { api } from "~/utils/api"
 
-type Form = {
-  name: string
-  description: string
-  zipCode: string
-  causes: Array<{
-    id: string
-    name: string
-  }>
-  contacts: Array<{
-    type: "PHONE" | "EMAIL"
-    value: string
-  }>
-}
+const formSchema = z.object({
+  name: z.string({ required_error: "Campo obrigatório" }).min(1, { message: "Campo obrigatório" }),
+  description: z
+    .string({ required_error: "Campo obrigatório" })
+    .min(1, { message: "Campo obrigatório" }),
+  zipCode: z
+    .string({ required_error: "Campo obrigatório" })
+    .length(8, { message: "O CEP deve possuir 8 dígitos, apenas números" }),
+  causes: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      }),
+    )
+    .min(1, { message: "O grupo deve possuir pelo menos uma causa" }),
+  contacts: z
+    .array(
+      z.object({
+        type: z.enum(["PHONE", "EMAIL"]),
+        value: z.string().min(1, { message: "Campo obrigatório" }),
+      }),
+    )
+    .min(1, { message: "O grupo deve possuir pelo menos um contato" }),
+})
+
+type Form = z.infer<typeof formSchema>
 
 function CreateGroupPage() {
-  const { register, handleSubmit, control } = useForm<Form>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<Form>({
     defaultValues: {
       causes: [],
       contacts: [],
@@ -44,7 +65,10 @@ function CreateGroupPage() {
       name: "",
       zipCode: "",
     },
+    resolver: zodResolver(formSchema),
   })
+
+  console.log({ errors })
 
   const { toast } = useToast()
 
@@ -115,6 +139,11 @@ function CreateGroupPage() {
                     className="bg-primary"
                     {...register("name", { required: true })}
                   />
+                  {errors.name && (
+                    <small className="text-sm leading-none text-destructive">
+                      {errors.name.message}
+                    </small>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -124,6 +153,11 @@ function CreateGroupPage() {
                     className="bg-primary"
                     {...register("description", { required: true })}
                   />
+                  {errors.description && (
+                    <small className="text-sm leading-none text-destructive">
+                      {errors.description.message}
+                    </small>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -133,6 +167,11 @@ function CreateGroupPage() {
                     className="bg-primary"
                     {...register("zipCode", { required: true })}
                   />
+                  {errors.zipCode && (
+                    <small className="text-sm leading-none text-destructive">
+                      {errors.zipCode.message}
+                    </small>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -169,6 +208,11 @@ function CreateGroupPage() {
                           </Select>
                         )}
                       />
+                      {errors.contacts?.[index]?.value?.message && (
+                        <small className="text-sm leading-none text-destructive">
+                          {errors.contacts?.[index]?.value?.message}
+                        </small>
+                      )}
                     </div>
                   ))}
                   <Button
@@ -178,6 +222,11 @@ function CreateGroupPage() {
                   >
                     Adicionar
                   </Button>
+                  {errors.contacts && errors.contacts.message && (
+                    <small className="text-sm leading-none text-destructive">
+                      {errors.contacts.message}
+                    </small>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -200,6 +249,11 @@ function CreateGroupPage() {
                     onAdd={(cause) => addCause(cause)}
                   />
                 </div>
+                {errors.causes && errors.causes.message && (
+                  <small className="text-sm leading-none text-destructive">
+                    {errors.causes.message}
+                  </small>
+                )}
               </div>
 
               <Button type="submit">Cadastrar</Button>
